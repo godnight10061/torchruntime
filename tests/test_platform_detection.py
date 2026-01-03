@@ -87,6 +87,8 @@ def test_amd_gpu_ellesmere_linux(monkeypatch):
     monkeypatch.setattr("torchruntime.platform_detection.arch", "x86_64")
     gpu_infos = [GPU(AMD, "AMD", 0x1234, "Ellesmere", True)]
     assert get_torch_platform(gpu_infos) == "rocm4.2"
+    with pytest.raises(RuntimeError, match="EOL"):
+        get_torch_platform(gpu_infos, unsupported=False)
 
 
 def test_amd_gpu_unsupported_linux(monkeypatch, capsys):
@@ -151,6 +153,8 @@ def test_nvidia_7xx_gpu_windows(monkeypatch):
     monkeypatch.setattr("torchruntime.platform_detection.arch", "amd64")
     gpu_infos = [GPU(NVIDIA, "NVIDIA", "1004", "GK110 [GeForce GTX 780]", True)]
     assert get_torch_platform(gpu_infos) == "cu118"
+    with pytest.raises(RuntimeError, match="EOL"):
+        get_torch_platform(gpu_infos, unsupported=False)
 
 
 def test_nvidia_10xx_gpu_windows(monkeypatch):

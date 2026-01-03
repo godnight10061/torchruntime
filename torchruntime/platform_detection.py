@@ -17,6 +17,23 @@ _CUDA_12_8_MIN_VERSIONS = {
     "torchvision": Version("0.22.0"),
 }
 
+_EOL_PLATFORMS = {
+    # Used by older NVIDIA GPUs.
+    "cu118",
+    # Used by older AMD GPUs / older ROCm support.
+    "rocm4.2",
+    "rocm5.2",
+    "rocm5.5",
+    "rocm5.7",
+    "rocm6.1",
+}
+
+
+def _strip_channel_prefix(torch_platform: str) -> str:
+    # e.g. "nightly/cu128" -> "cu128"
+    # "cu128" -> "cu128"
+    return torch_platform.split("/", 1)[-1]
+
 
 def _packages_require_cuda_12_4(packages):
     if not packages:
@@ -51,13 +68,14 @@ def _packages_require_cuda_12_4(packages):
     return False
 
 
-def get_torch_platform(gpu_infos, packages=[]):
+def get_torch_platform(gpu_infos, packages=[], unsupported=True):
     """
     Determine the appropriate PyTorch platform to use based on the system architecture, OS, and GPU information.
 
     Args:
         gpu_infos (list of `torchruntime.device_db.GPU` instances)
         packages (list of str): Optional list of torch/torchvision/torchaudio requirement strings.
+        unsupported (bool): If False, raise on EOL platforms like cu118/rocm4.2. Defaults to True.
 
     Returns:
         str: A string representing the platform to use. Possible values:
@@ -95,9 +113,17 @@ def get_torch_platform(gpu_infos, packages=[]):
             integrated_devices.append(device)
 
     if discrete_devices:
-        return _get_platform_for_discrete(discrete_devices, packages=packages)
+        platform = _get_platform_for_discrete(discrete_devices, packages=packages)
+    else:
+        platform = _get_platform_for_integrated(integrated_devices)
 
-    return _get_platform_for_integrated(integrated_devices)
+    if not unsupported and _strip_channel_prefix(platform) in _EOL_PLATFORMS:
+        raise RuntimeError(
+            f"The detected torch platform '{platform}' is EOL. "
+            f"Pass unsupported=True to allow it, or upgrade your environment/GPU."
+        )
+
+    return platform
 
 
 def _get_platform_for_discrete(gpu_infos, packages=None):

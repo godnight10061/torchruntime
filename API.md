@@ -13,6 +13,15 @@ Or you can use the library:
 torchruntime.install(["torch", "torchvision<0.20"])
 ```
 
+Optional install flags:
+```py
+# Allow preview builds (e.g. xpu test/nightly)
+torchruntime.install(preview=True)
+
+# Disallow EOL builds (e.g. cu118)
+torchruntime.install(unsupported=False)
+```
+
 On Windows CUDA, Linux ROCm (6.x+), and Linux XPU, this also installs the appropriate Triton package to enable `torch.compile` (`triton-windows`, `pytorch-triton-rocm`, or `pytorch-triton-xpu`).
 
 ## Test torch

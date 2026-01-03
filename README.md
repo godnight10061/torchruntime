@@ -34,6 +34,10 @@ On Windows CUDA, Linux ROCm (6.x+), and Linux XPU, this also installs the approp
 
 **Tip:** You can also add the `--uv` flag to install packages using [uv](https://docs.astral.sh/uv/) (instead of `pip`). For e.g. `python -m torchruntime install --uv`
 
+**Tip:** If you need preview builds (e.g. `xpu` test/nightly), add `--preview`.
+
+**Tip:** To fail fast on EOL builds (e.g. `cu118`), add `--no-unsupported`.
+
 ### Step 2. Configure torch
 This should be run inside your program, to initialize the required environment variables (if any) for the variant of torch being used.
 
